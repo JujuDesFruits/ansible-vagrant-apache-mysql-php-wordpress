@@ -1,0 +1,20 @@
+---
+- name: mysql bind-address configuration
+  lineinfile: dest=/etc/mysql/my.cnf regexp='^(bind-address).*$' line='\1=0.0.0.0' backrefs=yes
+
+- name: root password
+  mysql_user: user=root password="{{ mysql_root_password }}" host_all=yes
+  ignore_errors: yes
+
+- name: delete anonymous users
+  mysql_user: login_user=root login_password="{{ mysql_root_password }}" name="" host_all=yes state="absent"
+
+- name: removing test db
+  mysql_db: login_user=root login_password="{{ mysql_root_password }}" db=test state=absent
+
+- name: wordpress bd
+  mysql_db: login_user=root login_password="{{ mysql_root_password }}" db="{{DB_NAME}}" state=present
+
+- name: wordpress user for {{groups.webservers | to_json | replace('"','') | replace('[','') | replace(']','')}}
+  mysql_user: login_user=root login_password="{{ mysql_root_password }}" name="{{DB_USER}}" password="{{DB_PASSWORD}}" host="{{groups.webservers | to_json | replace('\"','') | replace('[','') | replace(']','')}}" priv='{{DB_NAME}}.*:ALL' state=present
+  notify: restart mysql

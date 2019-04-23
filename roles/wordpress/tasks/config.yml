@@ -1,0 +1,29 @@
+---
+- name: iptables allow 80
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    match: tcp
+    destination_port: 80
+    jump: ACCEPT
+
+- name: delete index
+  file: path=/var/www/html/index.html state=absent
+
+- name: check config file
+  stat:
+    path: /var/www/html/index.php
+  register: stat_result
+
+- name: link to wordpress
+  shell: cp -r /tmp/wordpress/* /var/www/html/
+  when: stat_result.stat.exists == False
+
+- name: copy config file
+  template:
+    src: wp-config.php
+    dest: /var/www/html/wp-config.php
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart apache

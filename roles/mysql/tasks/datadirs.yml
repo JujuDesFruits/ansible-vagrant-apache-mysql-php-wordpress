@@ -1,0 +1,27 @@
+---
+- name: check if target directory exists
+  stat:
+    path: "{{sqlBaseDir}}/mysql"
+  register: target_folder
+
+- name: stop mysql before moving files
+  service: name=mysql state=stopped
+  when: target_folder.stat.exists == False
+
+- name: mysql data configuration
+  lineinfile: dest=/etc/mysql/my.cnf regexp='^(datadir).*$' line='\1={{sqlBaseDir}}/mysql' backrefs=yes
+
+- name: mysql tmp configuration
+  lineinfile: dest=/etc/mysql/my.cnf regexp='^(tmpdir).*$' line='\1={{sqlBaseDir}}/tmp' backrefs=yes
+
+- name: create tmpdir for mysql
+  file: dest={{sqlBaseDir}}/tmp state=directory owner=mysql group=mysql
+
+- name: create target directory
+  file: dest={{sqlBaseDir}}/mysql state=directory owner=mysql group=mysql
+  when: target_folder.stat.exists == False
+
+- name: move to a specific data directory
+  shell: mv /var/lib/mysql {{sqlBaseDir}}/mysql
+  when: target_folder.stat.exists == False
+  notify: start mysql

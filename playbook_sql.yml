@@ -1,0 +1,8 @@
+- name: Install database
+  hosts: database
+  remote_user: vagrant
+  roles:
+    - role: mysql
+      #sqlBaseDir: "/data/sql"
+      mysql_root_password: "mysql_passwd" # Storing passwd on Vault is prefered
+      become: yes

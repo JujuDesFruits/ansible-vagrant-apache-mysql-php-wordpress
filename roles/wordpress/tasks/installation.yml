@@ -1,0 +1,16 @@
+---
+- name: install package wordpress
+  get_url:
+    url: http://wordpress.org/latest.tar.gz
+    dest: /tmp/latest.tar.gz
+    mode: 0440
+    owner: root
+    group: root
+
+- name: unarchive wordpress
+  unarchive:
+    src: /tmp/latest.tar.gz
+    dest: /tmp
+    remote_src: yes
+    owner: root
+    group: root

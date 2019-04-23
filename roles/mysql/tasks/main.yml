@@ -1,0 +1,7 @@
+---
+- include: installation.yml
+
+- include: datadirs.yml
+  when: sqlBaseDir is defined
+
+- include: configure.yml

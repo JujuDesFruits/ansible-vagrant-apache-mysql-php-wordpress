@@ -1,0 +1,3 @@
+[mysqld]
+datadir         = {{sqlBaseDir}}/mysql
+tmpdir          = {{sqlBaseDir}}/tmp
